@@ -1,0 +1,45 @@
+version: '3.9'
+
+networks:
+  web:
+    external: true
+
+services:
+  selenium-app:
+    container_name: selenium-for-albato                      # имя контейнера
+    hostname: selenium                                       # hostname внутри контейнера
+    build:                                                   # параметры сборки
+      context: .                                                # контекст сборки - текущая директория
+      dockerfile: docker/php/Dockerfile                         # путь к Dockerfile
+      args:                                                     # аргументы для сборки
+        PHP_LATEST_VERSION: ${PHP_LATEST_VERSION}                   # версия PHP из .env
+        GITHUB_ACCESS_TOKEN: ${GITHUB_ACCESS_TOKEN}                 # токен GitHub из .env
+    volumes:                                                 # монтирование томов
+      - ./:/var/www/src                                         # монтирует текущую директорию в /var/www/src
+      - ./docker/php/root:/root                                 # монтирует docker/php/root в /root
+    working_dir: /var/www/src                                # рабочая директория внутри контейнера
+    networks:
+      - web                                                  # подключение к сети web
+    privileged: true                                         # расширенные привилегии для контейнера
+    shm_size: 4g                                             # размер shared memory (4 гигабайта)
+
+  chrome:
+    image: selenium/standalone-chrome:latest                # использует готовый образ Selenium с Chrome
+    container_name: ${SELENIUM_DRIVER_URL}                  # имя контейнера
+    hostname: chrome                                        # hostname внутри контейнера
+    environment:                                            # переменные окружения
+      VNC_NO_PASSWORD: 1                                        # отключает пароль для VNC
+      SE_CHROME_ARGS: >                                         # аргументы для запуска Chrome
+        --incognito                                                 # режим инкогнито
+        --disable-save-password-bubble                              # отключает сохранение паролей
+        --disable-password-manager                                  # отключает менеджер паролей
+    networks:
+      - web                                                 # подключение к сети web
+    volumes:
+      - /dev/shm:/dev/shm                                   # монтирование shared memory
+    ports:                                                  # проброс портов
+      - "${VNC_PORT:-5900}:5900"                                # порт для VNC
+      - "${SELENIUM_PORT:-4444}:4444"                           # порт Selenium WebDriver
+    privileged: true                                        # расширенные привилегии
+    shm_size: 2g                                            # размер shared memory (2 гигабайта)
+
