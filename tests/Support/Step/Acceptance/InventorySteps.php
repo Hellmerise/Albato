@@ -86,8 +86,6 @@ class InventorySteps extends LoginSteps implements InventoryInterface
     
     final public function clickButtonCart(): void
     {
-        $this->inventoryPage->checkTitlePage();
-        
         $this->safeClick($this->inventoryPage->returnButtonCart());
         
         $this->inventoryPage->waitForPageNotVisible();

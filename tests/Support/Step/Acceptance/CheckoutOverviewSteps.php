@@ -27,6 +27,19 @@ class CheckoutOverviewSteps extends CartSteps
         $this->checkoutOverviewPage->checkCalculationTotals();
     }
     
+    final public function checkCartIsEmpty(): void
+    {
+        $this->checkoutOverviewPage->checkTitlePage();
+        
+        $valueInCart = $this->checkoutOverviewPage->returnValueItemsInCart();
+        $itemsInCart = $this->checkoutOverviewPage->returnListProductsFromPage();
+        
+        $this->assertEquals(0, $valueInCart, "Ожидалось, что счетчик товаров в корзине будет пустой");
+        $this->assertEmpty($itemsInCart,"Ожидалось, что товаров в списке не будет");
+        
+        $this->checkoutOverviewPage->assertCalculationTotalIsNull();
+    }
+    
     final public function clickButtonFinish(): void
     {
         $this->checkoutOverviewPage->checkTitlePage();

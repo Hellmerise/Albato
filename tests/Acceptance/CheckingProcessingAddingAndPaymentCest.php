@@ -15,7 +15,7 @@ use Tests\Support\Step\Acceptance\CheckoutInformationSteps;
 use Tests\Support\Step\Acceptance\CheckoutOverviewSteps;
 use Tests\Support\Step\Acceptance\InventorySteps;
 
-#[Group('fourth')]
+#[Group('fourth', 'fifth')]
 final class CheckingProcessingAddingAndPaymentCest
 {
     private InventorySteps $inventorySteps;
@@ -32,7 +32,7 @@ final class CheckingProcessingAddingAndPaymentCest
         $this->checkoutCompleteSteps = new CheckoutCompleteSteps($scenario, $I);
     }
 
-    public function testProcessingAddingAndPayment(AcceptanceTester $I): void
+    private function testProcessingAddingAndPayment(AcceptanceTester $I): void
     {
         $I->wantTo("Полное оформление заказа с добавлением товара в корзину и оплатой");
         $this->inventorySteps->loginAsStandardUser();
@@ -45,9 +45,22 @@ final class CheckingProcessingAddingAndPaymentCest
         
     }
     
+    public function testProcessingPaymentWithEmptyCart(AcceptanceTester $I): void
+    {
+        $I->wantTo("Оформление заказа с пустой корзиной");
+        $this->inventorySteps->loginAsStandardUser();
+        $this->inventorySteps->clickButtonCart();
+        $this->cartSteps->clearCart();
+        $this->cartSteps->clickButtonCheckout();
+        $this->fillInformation($I);
+        $this->checkoutOverviewSteps->checkCartIsEmpty();
+        $this->checkoutOverviewSteps->clickButtonFinish();
+        $this->checkSuccessPayment($I);
+    }
+    
     private function testAddingInCart(AcceptanceTester $I): void
     {
-        $I->wantTo("Проверить добавление товаров в корзину...");
+        $I->comment("Проверить добавление товаров в корзину...");
         $this->inventorySteps->fillCart();
         $this->inventorySteps->clickButtonCart();
     
@@ -55,14 +68,14 @@ final class CheckingProcessingAddingAndPaymentCest
     
     private function checkCart(AcceptanceTester $I): void
     {
-        $I->wantTo("Проверить корзину...");
+        $I->comment("Проверить корзину...");
         $this->cartSteps->checkCartIsNotEmpty();
         $this->cartSteps->clickButtonCheckout();
     }
     
     private function fillInformation(AcceptanceTester $I): void
     {
-        $I->wantTo("Заполнить информацию о себе...");
+        $I->comment("Заполнить информацию о себе...");
         
         $data = [
             CheckoutInformationEnum::FIRSTNAME->value   => "Дмитрий",
@@ -76,14 +89,14 @@ final class CheckingProcessingAddingAndPaymentCest
     
     private function checkPayment(AcceptanceTester $I): void
     {
-        $I->wantTo("Проверить итоговую сумму...");
+        $I->comment("Проверить итоговую сумму...");
         $this->checkoutOverviewSteps->checkTotal();
         $this->checkoutOverviewSteps->clickButtonFinish();
     }
     
     private function checkSuccessPayment(AcceptanceTester $I): void
     {
-        $I->wantTo("Проверить успешность оплаты");
+        $I->comment("Проверить успешность оплаты");
         $this->checkoutCompleteSteps->checkSuccessPayment();
     }
 }

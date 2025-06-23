@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Support\Step\Acceptance;
 
+
 use Codeception\Scenario;
 use Tests\Support\AcceptanceTester;
 use Tests\Support\Config\InventoryColumnEnum;
@@ -36,7 +37,7 @@ class CartSteps extends InventorySteps implements CartInterface
         $itemsInCart = $this->cartPage->returnListProductsFromPage();
         
         $this->assertGreaterOrEquals(1, $valueInCart, "Ожидалось, что счетчик товаров в корзине будет показывать не меньше 1 товара");
-        $this->assertGreaterOrEquals(1, count($itemsInCart),"Ожидалось, что количество товаров в списке будет не меньше 1");
+        $this->assertGreaterOrEquals(1, count($itemsInCart), "Ожидалось, что количество товаров в списке будет не меньше 1");
     }
     
     final public function clearCart(): void

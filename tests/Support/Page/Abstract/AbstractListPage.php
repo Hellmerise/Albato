@@ -9,6 +9,7 @@ use Tests\Support\Page\Interfaces\ListPageInterface;
 
 abstract class AbstractListPage extends AbstractMenuPage implements ListPageInterface
 {
+    private const string XPATH_TEMPLATE = "//div[@data-test='%s']/child::div[@data-test='%s']";
     protected static string $DATA_TEST_NAME_ITEM = "inventory-item";
     
     abstract protected string $data_test_name_list {
@@ -21,10 +22,15 @@ abstract class AbstractListPage extends AbstractMenuPage implements ListPageInte
     
     final public function returnListProductsFromPage(): array
     {
-        return array_map(
-            fn(int $index) => $this->returnItemData($index),
-            range(1, $this->returnTotalItems())
-        );
+        $xpath = $this->buildXPath();
+        
+        if (!static::$acceptanceTester->tryToSeeElement($xpath)) {
+            return [];
+        }
+        
+        $totalItems = $this->countTotalItems($xpath);
+        
+        return $this->mapItemsData($totalItems);
     }
     
     final public function returnAttributeDataTestForItems(): string
@@ -32,26 +38,42 @@ abstract class AbstractListPage extends AbstractMenuPage implements ListPageInte
         return static::$DATA_TEST_NAME_ITEM;
     }
     
-    private function returnItemData(int $index): array
+    private function buildXPath(): string
+    {
+        return sprintf(
+            self::XPATH_TEMPLATE,
+            $this->data_test_name_list,
+            static::$DATA_TEST_NAME_ITEM
+        );
+    }
+    
+    private function mapItemsData(int $totalItems): array
     {
         return array_map(
-            fn(string $xpath) => $this->grabFormattedValue($xpath, $index),
+            fn(int $index) => $this->getItemData($index),
+            range(1, $totalItems)
+        );
+    }
+    
+    private function getItemData(int $index): array
+    {
+        return array_map(
+            fn(string $xpath) => $this->extractFormattedValue($xpath, $index),
             $this->item_selectors
         );
     }
     
-    private function grabFormattedValue(string $xpath, int $index): float|string|int
+    private function extractFormattedValue(string $xpath, int $index): float|string|int
     {
-        $xpathParent = sprintf(
-            "//div[@data-test='%s']/child::div[@data-test='%s']",
-            $this->data_test_name_list,
-            static::$DATA_TEST_NAME_ITEM
-        );
-        
         $value = static::$acceptanceTester->grabTextFrom(
-            sprintf("%s[%d]%s", $xpathParent, $index, $xpath)
+            sprintf("%s[%d]%s", $this->buildXPath(), $index, $xpath)
         );
         
+        return $this->formatValue($value);
+    }
+    
+    private function formatValue(string $value): float|string|int
+    {
         return match (true) {
             str_starts_with($value, '$') => static::$acceptanceTester->grabPriceFrom($value, '$'),
             is_numeric($value) => (int)$value,
@@ -59,16 +81,8 @@ abstract class AbstractListPage extends AbstractMenuPage implements ListPageInte
         };
     }
     
-    private function returnTotalItems(): int
+    private function countTotalItems(string $xpath): int
     {
-        return count(
-            static::$acceptanceTester->grabMultiple(
-                sprintf(
-                    "//div[@data-test='%s']/child::div[@data-test='%s']",
-                    $this->data_test_name_list,
-                    static::$DATA_TEST_NAME_ITEM
-                )
-            )
-        );
+        return count(static::$acceptanceTester->grabMultiple($xpath));
     }
 }
