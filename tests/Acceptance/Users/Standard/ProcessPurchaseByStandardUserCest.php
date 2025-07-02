@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 
-namespace Tests\Acceptance\Role\Standard;
+namespace Tests\Acceptance\Users\Standard;
 
 
 use Codeception\Attribute\Group;

@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 
-namespace Tests\Acceptance\Role\Glitch;
+namespace Tests\Acceptance\Users\Glitch;
 
 
 use Tests\Acceptance\ScenarioTest\CaseSortingProducts;

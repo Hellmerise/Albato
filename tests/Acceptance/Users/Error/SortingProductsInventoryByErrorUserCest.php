@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 
-namespace Tests\Acceptance\Role\Problem;
+namespace Tests\Acceptance\Users\Error;
 
 
 use Tests\Acceptance\ScenarioTest\CaseSortingProducts;
@@ -12,14 +12,14 @@ use Codeception\Example;
 
 
 #[Group('first')]
-final class SortingProductsInventoryByProblemUserCest extends CaseSortingProducts
+final class SortingProductsInventoryByErrorUserCest extends CaseSortingProducts
 {
     /**
      * @dataProvider dataProvider
      */
     public function tryToTest(Example $example): void
     {
-        $this->loginSteps->loginAsProblemUser();
+        $this->loginSteps->loginAsErrorUser();
         
         $this->testSorting($example['modeSort']);
     }

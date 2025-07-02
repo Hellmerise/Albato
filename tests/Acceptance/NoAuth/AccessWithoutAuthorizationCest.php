@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Acceptance\NonRole;
+namespace Tests\Acceptance\NoAuth;
 
 
 use Codeception\Attribute\Group;

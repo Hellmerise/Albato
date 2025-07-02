@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 
-namespace Tests\Acceptance\Role\Locked;
+namespace Tests\Acceptance\Users\Standard;
 
 
 use Tests\Acceptance\ScenarioTest\CaseSortingProducts;
@@ -12,14 +12,14 @@ use Codeception\Example;
 
 
 #[Group('first')]
-final class SortingProductsInventoryByLockedUserCest extends CaseSortingProducts
+final class SortingProductsInventoryByStandardUserCest extends CaseSortingProducts
 {
     /**
      * @dataProvider dataProvider
      */
     public function tryToTest(Example $example): void
     {
-        $this->loginSteps->loginAsLockedUser();
+        $this->loginSteps->loginAsStandardUser();
         
         $this->testSorting($example['modeSort']);
     }
