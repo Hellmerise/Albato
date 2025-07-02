@@ -7,6 +7,7 @@ namespace Tests\Support;
 
 use Codeception\Actor;
 use Codeception\Exception\TestRuntimeException;
+use Tests\Support\Config\TestConfigEnum;
 use Tests\Support\Config\TimeoutEnum;
 
 /**
@@ -28,27 +29,28 @@ class AcceptanceTester extends Actor
 {
     use _generated\AcceptanceTesterActions;
     
+    private const int PAGE_TIMEOUT = TestConfigEnum::WAIT_PAGE_LOAD;
+    
     private const string   JS_WAITING_LOAD_PAGE = "return (document.readyState === 'complete' && (typeof jQuery === 'undefined' || jQuery.active === 0));";
     
-    public function waitForPageLoad(): void
+    final public function waitForPageLoad(): void
     {
         $scriptJS = self::JS_WAITING_LOAD_PAGE;
         
         $startTime = microtime(true);
         
-        while (!$this->executeJS($scriptJS) && (microtime(true) - $startTime) < TimeoutEnum::PAGE_LOAD->value) {
+        while (!$this->executeJS($scriptJS) && (microtime(true) - $startTime) < self::PAGE_TIMEOUT) {
             $this->wait(0.1);
         }
         
-        if ((microtime(true) - $startTime) >= TimeoutEnum::PAGE_LOAD->value) {
+        if ((microtime(true) - $startTime) >= self::PAGE_TIMEOUT) {
             throw new TestRuntimeException(
                 sprintf(
                     "Страница и скрипты не были завершены за %s секунд.\nМетод: %s ",
-                    TimeoutEnum::PAGE_LOAD->value,
+                    self::PAGE_TIMEOUT,
                     __METHOD__,
                 )
             );
         }
     }
-    
 }

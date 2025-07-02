@@ -8,6 +8,7 @@ modules:
   enabled:
     - Codeception\Module\Asserts
     - Tests\Support\Helper\GrabHelper
+    - Tests\Support\Helper\AssertHelper
     - WebDriver:
         host: "%SELENIUM_DRIVER_URL%"
         url: "%TEST_URL%"

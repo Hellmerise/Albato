@@ -7,52 +7,146 @@ namespace Tests\Support\Step\Acceptance;
 
 use Codeception\Scenario;
 use Tests\Support\AcceptanceTester;
-use Tests\Support\Config\InventoryColumnEnum;
 use Tests\Support\Page\Acceptance\CartPage;
-use Tests\Support\Step\Interfaces\CartInterface;
 
-class CartSteps extends InventorySteps implements CartInterface
+final class CartSteps extends AcceptanceTester
 {
     private readonly CartPage $cartPage;
+    private readonly string   $keyId;
+    private readonly string   $keyName;
+    private readonly string   $keyDescription;
+    private readonly string   $keyPrice;
     
-    public function __construct(Scenario $scenario, AcceptanceTester $acceptanceTester)
+    final public function __construct(Scenario $scenario, AcceptanceTester $acceptanceTester)
     {
-        parent::__construct($scenario, $acceptanceTester);
+        parent::__construct($scenario);
+        
         $this->cartPage = new CartPage($acceptanceTester);
+        
+        $this->keyId = $this->cartPage->getKeyId();
+        $this->keyName = $this->cartPage->getKeyName();
+        $this->keyDescription = $this->cartPage->getKeyDescription();
+        $this->keyPrice = $this->cartPage->getKeyPrice();
     }
     
-    
+    /**
+     * Нажимает по кнопке "Оформить заказ" на странице корзины.
+     *
+     * Перед этим проверяет, что заголовок страницы корректен.
+     *
+     * Ожидает исчезновение текущей страницы.
+     *
+     * @return void
+     */
     final public function clickButtonCheckout(): void
     {
-        $this->cartPage->checkTitlePage();
+        $this->cartPage->assertHeaderPage();
         
-        $this->safeClick($this->cartPage->returnButtonCheckout());
+        $this->cartPage->clickButtonCheckout();
         
         $this->cartPage->waitForPageNotVisible();
     }
     
-    final public function checkCartIsNotEmpty(): void
+    /**
+     * Проверяет, что список продуктов в корзине соответствует ожидаемому.
+     *
+     * Если ожидаемый список пуст, очищает корзину.
+     * Выполняет проверку количества продуктов и их содержимого.
+     *
+     * @param array $expectedProducts Ожидаемый список продуктов
+     *
+     * @return void
+     */
+    final public function assertProductsEqual(array $expectedProducts): void
     {
-        $valueInCart = $this->cartPage->returnValueItemsInCart();
-        $itemsInCart = $this->cartPage->returnListProductsFromPage();
+        $this->cartPage->assertHeaderPage();
         
-        $this->assertGreaterOrEquals(1, $valueInCart, "Ожидалось, что счетчик товаров в корзине будет показывать не меньше 1 товара");
-        $this->assertGreaterOrEquals(1, count($itemsInCart), "Ожидалось, что количество товаров в списке будет не меньше 1");
-    }
-    
-    final public function clearCart(): void
-    {
-        $items = $this->cartPage->returnListProductsFromPage();
-        
-        while (count($items) > 0) {
-            $this->removeFromCart($items[0][InventoryColumnEnum::NAME->value]);
-            $items = $this->cartPage->returnListProductsFromPage();
+        if (empty($expectedProducts)) {
+            $this->clearCart();
         }
+        
+        $this->checkingCountProducts($expectedProducts);
+        $this->assertProductsEquals($expectedProducts);
     }
     
-    final protected function checkEmptyCart(): void
+    /**
+     * Проверяет, что количество продуктов на странице и в счетчике корзины
+     * совпадает с количеством ожидаемых продуктов.
+     *
+     * @param array $expectedProducts Ожидаемый список продуктов
+     *
+     * @return void
+     */
+    private function checkingCountProducts(array $expectedProducts): void
     {
-        $this->assertEquals(0, $this->cartPage->returnValueItemsInCart());
-        $this->assertEmpty($this->cartPage->returnListProductsFromPage());
+        $countProducts = $this->cartPage->getCountProductsOnPage();
+        $countItemsInCart = $this->cartPage->getValueCart();
+        
+        $this->assertCount($countProducts, $expectedProducts, 'Количество товаров в корзине не совпадает с количеством добавленных товаров');
+        $this->assertEquals($countItemsInCart, $countProducts, 'Количество товаров в счетчике не совпадает с количеством товаров в корзине');
+    }
+    
+    /**
+     * Сравнивает ожидаемый и фактический списки продуктов по выбранным полям.
+     *
+     * @param array $expectedProducts Ожидаемый список продуктов
+     *
+     * @return void
+     */
+    private function assertProductsEquals(array $expectedProducts): void
+    {
+        $actualProducts = $this->cartPage->getProductsFromPage();
+        
+        $expectedFiltered = $this->filterProductFields($expectedProducts);
+        $actualFiltered = $this->filterProductFields($actualProducts);
+        
+        $this->assertEquals($expectedFiltered, $actualFiltered, 'Добавленный список товаров отличается от списка товаров в корзине');
+    }
+    
+    /**
+     * Отбирает из каждого продукта только нужные поля для сравнения.
+     *
+     * @param array $products Список продуктов
+     *
+     * @return array Отфильтрованный список продуктов с ключами id, name, description, price
+     *
+     * @return void
+     */
+    private function filterProductFields(array $products): array
+    {
+        $keys = [
+            $this->keyId,
+            $this->keyName,
+            $this->keyDescription,
+            $this->keyPrice,
+        ];
+        
+        return array_map(
+            function ($product) use ($keys) {
+                $result = [];
+                foreach ($keys as $key) {
+                    $result[$key] = $product[$key] ?? null;
+                }
+                
+                return $result;
+            },
+            $products
+        );
+    }
+    
+    /**
+     * Очищает корзину, удаляя все продукты по одному.
+     *
+     * Нажимает по кнопке удаления для каждого продукта до тех пор,
+     * пока корзина не станет пустой.
+     */
+    private function clearCart(): void
+    {
+        $products = $this->cartPage->getProductsFromPage();
+        
+        while (count($products) > 0) {
+            $this->click($products[0][$this->cartPage->getKeyButton()]);
+            $products = $this->cartPage->getProductsFromPage();
+        }
     }
 }

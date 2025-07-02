@@ -5,93 +5,154 @@ declare(strict_types=1);
 namespace Tests\Support\Page\Abstract;
 
 
-use Tests\Support\Page\Interfaces\MenuInterface;
+use Codeception\Exception\ElementNotFound;
 
-abstract class AbstractMenuPage extends AbstractPage implements MenuInterface
+/**
+ * Абстрактный класс страницы с меню.
+ *
+ * Предоставляет базовую функциональность для работы с элементами меню:
+ * - получение текста логотипа и заголовка
+ * - доступ к кнопкам навигации
+ * - работа с корзиной
+ */
+abstract class AbstractMenuPage extends AbstractPage
 {
-    private const string LOGO_TEXT              = 'Swag Labs';
-    private const string LOGO_XPATH             = "//div[@class = 'app_logo']";
-    private const string TITLE_XPATH            = "//span[@data-test = 'title']";
-    private const string BUTTON_MENU            = "//button[@id = 'react-burger-menu-btn']";
-    private const string BUTTON_CART            = "//a[@data-test = 'shopping-cart-link']";
-    private const string CART_VALUE_XPATH       = "//span[@data-test = 'shopping-cart-badge']";
-    private const string BUTTON_ALL_ITEMS       = "//a[@data-test = 'inventory-sidebar-link']";
-    private const string BUTTON_ABOUT           = "//a[@data-test = 'about-sidebar-link']";
-    private const string BUTTON_LOGOUT          = "//a[@data-test = 'logout-sidebar-link']";
-    private const string BUTTON_RESET_APP_STATE = "//a[@data-test = 'reset-sidebar-link']";
-    protected static string $title = '';
+    /**
+     * @var string Xpath заголовка страницы.
+     */
+    private const string PAGE_TITLE_XPATH = "//span[@data-test = 'title']";
     
-    final public function checkLogo(): void
-    {
-        $expected = self::LOGO_TEXT;
-        $actual = static::$acceptanceTester->grabTextFrom(self::LOGO_XPATH);
-        $this->assertTextFor('LOGO', $expected, $actual);
+    /**
+     * @var string Xpath кнопки "Меню".
+     */
+    private const string BUTTON_MENU_XPATH = "//button[@id = 'react-burger-menu-btn']";
+    
+    /**
+     * @var string Xpath кнопки "X" для закрытия меню.
+     */
+    private const string BUTTON_CLOSE_MENU_XPATH = "//button[@id = 'react-burger-cross-btn']";
+    
+    /**
+     * @var string Xpath кнопки "Корзина".
+     */
+    private const string BUTTON_CART_XPATH = "//a[@data-test = 'shopping-cart-link']";
+    
+    /**
+     * @var string Xpath счётчика "Корзины".
+     */
+    private const string CART_VALUE_XPATH = "//span[@data-test = 'shopping-cart-badge']";
+    
+    /**
+     * @var string Xpath кнопки меню "Все товары".
+     */
+    private const string BUTTON_ALL_ITEMS_XPATH = "//a[@data-test = 'inventory-sidebar-link']";
+    
+    /**
+     * @var string Xpath кнопки меню "О компании".
+     */
+    private const string BUTTON_ABOUT_XPATH = "//a[@data-test = 'about-sidebar-link']";
+    
+    /**
+     * @var string Xpath кнопки меню "Выход".
+     */
+    private const string BUTTON_LOGOUT_XPATH = "//a[@data-test = 'logout-sidebar-link']";
+    
+    /**
+     * @var string Xpath кнопки меню "Сбросить приложение".
+     */
+    private const string BUTTON_RESET_APP_XPATH = "//a[@data-test = 'reset-sidebar-link']";
+    
+    /**
+     * @var string Текст заголовка страницы.
+     */
+    abstract protected string $title {
+        get;
     }
     
-    final public function checkTitlePage(): void
+    /**
+     * Утверждает, что фактический текст логотипа соответствует ожидаемому.
+     * Утверждает, что фактический текст заголовка страницы соответствует ожидаемому.
+     *
+     */
+    final public function assertHeaderPage(): void
     {
-        $expected = static::$title;
-        $actual = static::$acceptanceTester->grabTextFrom(self::TITLE_XPATH);
-        $this->assertTextFor('TITLE', $expected, $actual);
+        $this->assertLogoPage();
+        $this->assertTitlePage();
     }
     
-    final public function returnButtonMenu(): string
+    /**
+     * Нажимает на кнопку главного меню "Сбросить приложение".
+     *
+     * @return void
+     */
+    final public function clickResetApp(): void
     {
-        return self::BUTTON_MENU;
+        $this->clickButtonMenu(self::BUTTON_RESET_APP_XPATH);
     }
     
-    final public function returnButtonCart(): string
+    /**
+     * Нажимает на кнопку главного меню "Выйти".
+     *
+     * @return void
+     */
+    final public function clickLogout(): void
     {
-        return self::BUTTON_CART;
+        $this->clickButtonMenu(self::BUTTON_LOGOUT_XPATH);
     }
     
-    final public function returnButtonAllItems(): string
+    /**
+     * Нажимает на кнопку "Корзина" в правом верхнем углу.
+     *
+     * @return void
+     */
+    final public function clickButtonCart(): void
     {
-        return self::BUTTON_ALL_ITEMS;
+        static::$acceptanceTester->click(self::BUTTON_CART_XPATH);
     }
     
-    final public function returnButtonAbout(): string
+    /**
+     * Получает количество товаров в корзине из счетчика корзины, который в правом верхнем углу.
+     *
+     * @return int
+     */
+    final public function getValueCart(): int
     {
-        return self::BUTTON_ABOUT;
+        try {
+            return (int)static::$acceptanceTester->grabTextFrom(self::CART_VALUE_XPATH);
+        } catch (ElementNotFound) {
+            return 0;
+        }
     }
     
-    final public function returnButtonLogout(): string
+    /**
+     * Нажимает по указанной кнопке меню.
+     * Если кнопка меню не видна, сначала открывает меню.
+     *
+     * @param string $link Xpath кнопки меню.
+     *
+     * @return void
+     */
+    private function clickButtonMenu(string $link): void
     {
-        return self::BUTTON_LOGOUT;
+        if ($link !== self::BUTTON_MENU_XPATH && !static::$acceptanceTester->tryToSeeElement($link)) {
+            static::$acceptanceTester->click(self::BUTTON_MENU_XPATH);
+            static::$acceptanceTester->waitForElementVisible($link);
+        }
+        static::$acceptanceTester->click($link);
     }
     
-    final public function returnButtonResetAppState(): string
+    /**
+     * Утверждает, что фактический текст заголовка страницы соответствует ожидаемому.
+     *
+     * @return void
+     */
+    private function assertTitlePage(): void
     {
-        return self::BUTTON_RESET_APP_STATE;
-    }
-    
-    final public function returnValueItemsInCart(): int
-    {
-        return static::$acceptanceTester->tryToSeeElement(self::CART_VALUE_XPATH)
-            ? (int)static::$acceptanceTester->grabTextFrom(self::CART_VALUE_XPATH)
-            : 0;
-    }
-    
-    final protected static function returnElementsMenu(): array
-    {
-        return [
-            self::LOGO_XPATH,
-            self::BUTTON_CART,
-            self::BUTTON_MENU
-        ];
-    }
-    
-    private function assertTextFor(string $label, string $expected, string $actual): void
-    {
+        $title = static::$acceptanceTester->grabTextFrom(self::PAGE_TITLE_XPATH);
         static::$acceptanceTester->assertEquals(
-            $expected,
-            $actual,
-            sprintf(
-                "Ожидаемый текст для '%s' должен быть: '%s', но фактический текст: '%s'.",
-                $label,
-                $expected,
-                $actual
-            )
+            $this->title,
+            $title,
+            "Текст заголовка '$title' не соответствует ожидаемому!"
         );
     }
 }

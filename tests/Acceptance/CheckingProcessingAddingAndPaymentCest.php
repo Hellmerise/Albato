@@ -8,33 +8,32 @@ namespace Tests\Acceptance;
 use Codeception\Attribute\Group;
 use Codeception\Scenario;
 use Tests\Support\AcceptanceTester;
-use Tests\Support\Config\CheckoutInformationEnum;
 use Tests\Support\Step\Acceptance\CartSteps;
-use Tests\Support\Step\Acceptance\CheckoutCompleteSteps;
-use Tests\Support\Step\Acceptance\CheckoutInformationSteps;
-use Tests\Support\Step\Acceptance\CheckoutOverviewSteps;
+use Tests\Support\Step\Acceptance\CompleteSteps;
+use Tests\Support\Step\Acceptance\InformationSteps;
+use Tests\Support\Step\Acceptance\OverviewSteps;
 use Tests\Support\Step\Acceptance\InventorySteps;
 
-#[Group('fourth', 'fifth')]
+#[Group('fifth')]
 final class CheckingProcessingAddingAndPaymentCest
 {
     private InventorySteps $inventorySteps;
-    private CartSteps $cartSteps;
-    private CheckoutInformationSteps $checkoutInformationSteps;
-    private CheckoutOverviewSteps $checkoutOverviewSteps;
-    private CheckoutCompleteSteps $checkoutCompleteSteps;
+    private CartSteps             $cartSteps;
+    private InformationSteps $checkoutInformationSteps;
+    private OverviewSteps    $checkoutOverviewSteps;
+    private CompleteSteps    $checkoutCompleteSteps;
     public function _before(Scenario $scenario, AcceptanceTester $I): void
     {
         $this->inventorySteps = new InventorySteps($scenario, $I);
         $this->cartSteps = new CartSteps($scenario, $I);
-        $this->checkoutInformationSteps = new CheckoutInformationSteps($scenario, $I);
-        $this->checkoutOverviewSteps = new CheckoutOverviewSteps($scenario, $I);
-        $this->checkoutCompleteSteps = new CheckoutCompleteSteps($scenario, $I);
+        $this->checkoutInformationSteps = new InformationSteps($scenario, $I);
+        $this->checkoutOverviewSteps = new OverviewSteps($scenario, $I);
+        $this->checkoutCompleteSteps = new CompleteSteps($scenario, $I);
     }
 
     private function testProcessingAddingAndPayment(AcceptanceTester $I): void
     {
-        $I->wantTo("Полное оформление заказа с добавлением товара в корзину и оплатой");
+        
         $this->inventorySteps->loginAsStandardUser();
         $this->testAddingInCart($I);
         $this->checkCart($I);
@@ -51,7 +50,7 @@ final class CheckingProcessingAddingAndPaymentCest
         $this->inventorySteps->loginAsStandardUser();
         $this->inventorySteps->clickButtonCart();
         $this->cartSteps->clearCart();
-        $this->cartSteps->clickButtonCheckout();
+        //$this->cartSteps->clickButtonCheckout();
         $this->fillInformation($I);
         $this->checkoutOverviewSteps->checkCartIsEmpty();
         $this->checkoutOverviewSteps->clickButtonFinish();
@@ -61,7 +60,7 @@ final class CheckingProcessingAddingAndPaymentCest
     private function testAddingInCart(AcceptanceTester $I): void
     {
         $I->comment("Проверить добавление товаров в корзину...");
-        $this->inventorySteps->fillCart();
+        $this->inventorySteps->addProductsInCart();
         $this->inventorySteps->clickButtonCart();
     
     }
@@ -69,8 +68,8 @@ final class CheckingProcessingAddingAndPaymentCest
     private function checkCart(AcceptanceTester $I): void
     {
         $I->comment("Проверить корзину...");
-        $this->cartSteps->checkCartIsNotEmpty();
-        $this->cartSteps->clickButtonCheckout();
+        $this->cartSteps->assertNotEmptyCart();
+        //$this->cartSteps->clickButtonCheckout();
     }
     
     private function fillInformation(AcceptanceTester $I): void
@@ -83,7 +82,7 @@ final class CheckingProcessingAddingAndPaymentCest
             CheckoutInformationEnum::POSTAL_CODE->value => "1234567",
         ];
         
-        $this->checkoutInformationSteps->fillInformation($data);
+        $this->checkoutInformationSteps->fillFields($data);
         $this->checkoutInformationSteps->clickButtonContinue();
     }
     

@@ -5,49 +5,91 @@ declare(strict_types=1);
 namespace Tests\Support\Page\Acceptance;
 
 
-use Tests\Support\Config\InventoryColumnEnum;
+use InvalidArgumentException;
 use Tests\Support\AcceptanceTester;
-use Tests\Support\Page\Abstract\AbstractListPage;
+use Tests\Support\Config\TestCasesEnum;
+use Tests\Support\Page\Abstract\AbstractProductPage;
 
-final class InventoryPage extends AbstractListPage
+/**
+ * Страница со списком товаров.
+ * Предоставляет методы для получения селекторов страницы,
+ * включая элемент для сортировки товаров.
+ */
+final class InventoryPage extends AbstractProductPage
 {
-    private const string DATA_TEST_NAME_LIST = "inventory-list";
-    private const string INVENTORY_LIST      = "//div[@data-test = '" . self::DATA_TEST_NAME_LIST . "']";
-    private const string SELECT_SORT         = "//select[@data-test = 'product-sort-container']";
-    protected static string $title = "Products";
+    private const string URL                      = '/inventory.html';
+    private const string TITLE                    = 'Products';
+    private const string SELECT_FOR_SORTING_XPATH = "//select[@data-test = 'product-sort-container']";
+    
+    /**
+     * @inheritDoc
+     */
+    protected string $url {
+        get {
+            return self::URL;
+        }
+    }
+    
+    /**
+     * @inheritDoc
+     */
+    final protected string $title {
+        get {
+            return self::TITLE;
+        }
+    }
+    
+    /**
+     * @inheritDoc
+     */
+    final protected array $wait_elements {
+        get {
+            return [
+                $this->container_pattern_xpath,
+                self::SELECT_FOR_SORTING_XPATH,
+            ];
+        }
+    }
+    
+    /**
+     * @inheritDoc
+     */
+    protected string $container_data_test {
+        get {
+            return parent::getContainerInventoryList();
+        }
+    }
+    
+    /**
+     * @inheritDoc
+     */
+    final protected string $container_pattern_xpath {
+        get {
+            return sprintf(parent::getPatternContainerXpath(), $this->container_data_test);
+        }
+    }
+    
     
     final public function __construct(AcceptanceTester $I)
     {
         self::$acceptanceTester = $I;
     }
     
-    final public function returnSelectSort(): string
+    /**
+     * Выбирает значение в select.
+     *
+     * @param string $valueOption Значение.
+     *
+     * @return string Название отсортированного свойства.
+     */
+    final public function sortBy(string $valueOption): string
     {
-        return self::SELECT_SORT;
-    }
-    
-    final protected string $data_test_name_list {
-        get {
-            return self::DATA_TEST_NAME_LIST;
-        }
-    }
-    final protected array  $item_selectors {
-        get {
-            return [
-                InventoryColumnEnum::IMG_LINK->value    => InventoryColumnEnum::IMG_LINK->getXPath(),
-                InventoryColumnEnum::NAME->value        => InventoryColumnEnum::NAME->getXPath(),
-                InventoryColumnEnum::NAME_LINK->value   => InventoryColumnEnum::NAME_LINK->getXPath(),
-                InventoryColumnEnum::DESCRIPTION->value => InventoryColumnEnum::DESCRIPTION->getXPath(),
-                InventoryColumnEnum::PRICE->value       => InventoryColumnEnum::PRICE->getXPath(),
-            ];
-        }
-    }
-    
-    final protected function returnElementsForWait(): array
-    {
-        return [
-            self::INVENTORY_LIST,
-            self::SELECT_SORT,
-        ];
+        $this->selectOption(self::SELECT_FOR_SORTING_XPATH, $valueOption);
+        
+        return match ($valueOption) {
+            TestCasesEnum::VALUE_SORT_NAME_ASC, TestCasesEnum::VALUE_SORT_NAME_DESC => $this->getKeyName(),
+            TestCasesEnum::VALUE_SORT_PRICE_ASC, TestCasesEnum::VALUE_SORT_PRICE_DESC => $this->getKeyPrice(),
+            default => throw new InvalidArgumentException("Неизвестный режим сортировки: '$valueOption'"),
+        };
     }
 }

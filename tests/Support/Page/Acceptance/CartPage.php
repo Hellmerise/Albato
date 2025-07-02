@@ -5,58 +5,102 @@ declare(strict_types=1);
 namespace Tests\Support\Page\Acceptance;
 
 
-use Tests\Support\Config\InventoryColumnEnum;
 use Tests\Support\AcceptanceTester;
-use Tests\Support\Page\Abstract\AbstractListPage;
+use Tests\Support\Page\Abstract\AbstractProductPage;
 
-class CartPage extends AbstractListPage
+/**
+ * Страница корзины.
+ *
+ * Предоставляет элементы страницы корзины,
+ * включая кнопки оформления заказа и продолжения покупок,
+ * а также список товаров в корзине.
+ */
+class CartPage extends AbstractProductPage
 {
-    private const string           DATA_TEST_NAME_LIST      = "cart-list";
-    private const string           CART_LIST                = "//div[@data-test = '" . self::DATA_TEST_NAME_LIST . "']";
-    private const string           BUTTON_CHECKOUT          = "//button[@data-test = 'checkout']";
-    private const string           BUTTON_CONTINUE_SHOPPING = "//button[@data-test = 'continue-shopping']";
+    private const string   URL                            = '/cart.html';
+    private const string   TITLE                          = 'Your Cart';
+    private const string   BUTTON_CHECKOUT_XPATH          = "//button[@data-test = 'checkout']";
+    private const string   BUTTON_CONTINUE_SHOPPING_XPATH = "//button[@data-test = 'continue-shopping']";
     
-    protected static string $title = "Your Cart";
+    /**
+     * @inheritDoc
+     */
+    protected string $url {
+        get {
+            return self::URL;
+        }
+    }
+    
+    /**
+     * @inheritDoc
+     */
+    protected string $title {
+        get {
+            return self::TITLE;
+        }
+    }
+    
+    /**
+     * @inheritDoc
+     */
+    protected array $wait_elements {
+        get {
+            return [
+                $this->container_pattern_xpath,
+                self::BUTTON_CHECKOUT_XPATH,
+                self::BUTTON_CONTINUE_SHOPPING_XPATH,
+            ];
+        }
+    }
+    
+    /**
+     * @inheritDoc
+     */
+    protected string $container_data_test {
+        get {
+            return parent::getContainerCartList();
+        }
+    }
+    
+    /**
+     * @inheritDoc
+     */
+    protected string $container_pattern_xpath {
+        get {
+            return sprintf(parent::getPatternContainerXpath(), $this->container_data_test);
+        }
+    }
+    
+    /**
+     * @inheritDoc
+     */
+    protected string $key_name {
+        get {
+            return parent::getKeyName();
+        }
+    }
+    
+    /**
+     * @inheritDoc
+     */
+    protected string $key_price {
+        get {
+            return parent::getKeyPrice();
+        }
+    }
     
     public function __construct(AcceptanceTester $I)
     {
         self::$acceptanceTester = $I;
     }
     
-    final public function returnButtonCheckout(): string
+    final public function clickButtonCheckout(): void
     {
-        return self::BUTTON_CHECKOUT;
+        self::$acceptanceTester->click(self::BUTTON_CHECKOUT_XPATH);
     }
     
-    protected string $data_test_name_list {
-        get {
-            return self::DATA_TEST_NAME_LIST;
-        }
-    }
-    
-    final protected static function returnCartListXpath(): string
+    final public function clickButtonShopping(): void
     {
-        return self::CART_LIST;
-    }
-    
-    final protected array $item_selectors {
-        get {
-            return [
-                InventoryColumnEnum::QUANTITY->value    => InventoryColumnEnum::QUANTITY->getXPath(),
-                InventoryColumnEnum::NAME->value        => InventoryColumnEnum::NAME->getXPath(),
-                InventoryColumnEnum::NAME_LINK->value   => InventoryColumnEnum::NAME_LINK->getXPath(),
-                InventoryColumnEnum::DESCRIPTION->value => InventoryColumnEnum::DESCRIPTION->getXPath(),
-                InventoryColumnEnum::PRICE->value       => InventoryColumnEnum::PRICE->getXPath(),
-            ];
-        }
-    }
-    
-    protected function returnElementsForWait(): array
-    {
-        return [
-            self::CART_LIST,
-            self::BUTTON_CHECKOUT,
-            self::BUTTON_CONTINUE_SHOPPING,
-        ];
+        self::$acceptanceTester->click(self::BUTTON_CONTINUE_SHOPPING_XPATH);
     }
 }
