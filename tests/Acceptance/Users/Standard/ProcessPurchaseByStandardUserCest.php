@@ -9,7 +9,7 @@ namespace Tests\Acceptance\Users\Standard;
 use Codeception\Attribute\Group;
 use Codeception\Example;
 use Tests\Acceptance\ScenarioTest\CasePurchaseProducts;
-use Tests\Support\Config\TestCasesEnum;
+
 
 #[Group('fourth', 'kek')]
 final class ProcessPurchaseByStandardUserCest extends CasePurchaseProducts
@@ -22,10 +22,10 @@ final class ProcessPurchaseByStandardUserCest extends CasePurchaseProducts
         $this->loginSteps->loginAsStandardUser();
         
         $this->testPurchaseProducts(
-            $example[TestCasesEnum::KEY_COUNTS_PRODUCTS] ?? null,
-            $example[TestCasesEnum::KEY_FIRSTNAME] ?? null,
-            $example[TestCasesEnum::KEY_LASTNAME] ?? null,
-            $example[TestCasesEnum::KEY_POSTAL_CODE] ?? null
+            $example[parent::KEY_COUNT] ?? null,
+            $example[parent::KEY_FIRSTNAME] ?? null,
+            $example[parent::KEY_LASTNAME] ?? null,
+            $example[parent::KEY_POSTAL_CODE] ?? null
         );
     }
 }

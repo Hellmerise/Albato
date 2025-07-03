@@ -8,7 +8,7 @@ namespace Tests\Support;
 use Codeception\Actor;
 use Codeception\Exception\TestRuntimeException;
 use Tests\Support\Config\TestConfigEnum;
-use Tests\Support\Config\TimeoutEnum;
+
 
 /**
  * Inherited Methods

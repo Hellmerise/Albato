@@ -4,36 +4,15 @@ composer.phar
 composer.lock
 
 # PhpStorm
-.idea/
-*.iml
-*.iws
+.idea
 
 # Тестовые файлы
-/tests/Support/_generated/
 /tests/_output/
 /tests/_data/
 *.log
 
 # Временные файлы
 .env
-.env.local
-.env.*.local
-.php_cs.cache
-.phpunit.result.cache
-
-# Системные файлы
-.DS_Store
-Thumbs.db
-*.swp
-*~
-
-# Кэш
-/var/
-/cache/
-*.cache
 
 # Docker
-/docker/php/root/.cache
-/docker/php/root/.config
-/docker/php/root/.local
-/docker/php/root/.cache/composer/.htaccess
+/docker/
