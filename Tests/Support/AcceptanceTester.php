@@ -10,6 +10,7 @@ use Codeception\Exception\TestRuntimeException;
 use Tests\Support\Config\TestConfigEnum;
 
 
+
 /**
  * Inherited Methods
  * @method void wantTo($text)
