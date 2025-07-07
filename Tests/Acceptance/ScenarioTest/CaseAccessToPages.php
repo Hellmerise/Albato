@@ -85,7 +85,7 @@ abstract class CaseAccessToPages
     private function testAccessToPage(string $page): void
     {
         $this->acceptanceTester->amOnPage($page);
-        $this->acceptanceTester->waitForPageLoad();
+        $this->loginPage->waitForPageVisible();
         
         if (str_starts_with($page, '/inventory-item.html')) {
             $page = '/inventory-item.html';

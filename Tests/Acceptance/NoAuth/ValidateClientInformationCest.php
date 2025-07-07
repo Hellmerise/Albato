@@ -10,7 +10,7 @@ use Codeception\Attribute\Group;
 use Tests\Acceptance\ScenarioTest\CaseValidationInformation;
 use Tests\Support\AcceptanceTester;
 
-#[Group('third')]
+#[Group('info')]
 final class ValidateClientInformationCest extends CaseValidationInformation
 {
     public function tryToTest(AcceptanceTester $I): void

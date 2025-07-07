@@ -11,7 +11,7 @@ use Tests\Acceptance\ScenarioTest\CaseNegativeLogin;
 use Tests\Support\AcceptanceTester;
 
 
-#[Group('login', 'negative')]
+#[Group('login')]
 final class AuthorizationErrorsCest extends CaseNegativeLogin
 {
     /**
