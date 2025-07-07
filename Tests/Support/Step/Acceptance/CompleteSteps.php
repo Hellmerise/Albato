@@ -9,7 +9,6 @@ use Codeception\Scenario;
 use Tests\Support\AcceptanceTester;
 use Tests\Support\Config\SuccessPaymentEnum;
 use Tests\Support\Page\Acceptance\CompletePage;
-use Tests\Support\Page\Acceptance\testPage;
 
 final class CompleteSteps extends AcceptanceTester
 {
