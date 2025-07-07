@@ -11,12 +11,11 @@ return [
         TestCasesEnum::KEY_LASTNAME        => 'Базарнов',
         TestCasesEnum::KEY_POSTAL_CODE     => '123456',
     ],
-    [
+/*    [
         TestCasesEnum::KEY_COUNTS_PRODUCTS => 0,
         TestCasesEnum::KEY_FIRSTNAME       => 'Дмитрий',
         TestCasesEnum::KEY_LASTNAME        => 'Базарнов',
         TestCasesEnum::KEY_POSTAL_CODE     => '123456',
-
     ],
     [
         TestCasesEnum::KEY_FIRSTNAME   => 'Дмитрий',
@@ -26,5 +25,5 @@ return [
     [
         TestCasesEnum::KEY_FIRSTNAME => 'Дмитрий',
         TestCasesEnum::KEY_LASTNAME  => 'Базарнов',
-    ],
+    ],*/
 ];

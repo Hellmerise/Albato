@@ -263,7 +263,7 @@ abstract class CaseValidationInformation
             }
         } else {
             // Просто заполняем поля без проверки ошибок
-            $this->informationSteps->fillFieldsInformation(
+            $this->informationSteps->writeInformationAndContinue(
                 $firstname,
                 $lastname,
                 $postalCode

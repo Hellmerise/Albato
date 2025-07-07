@@ -12,6 +12,7 @@ use Tests\Support\Page\Acceptance\OverviewPage;
 
 final class OverviewSteps extends AcceptanceTester
 {
+    private const float TAX_RATE = TestConfigEnum::TAX_RATE;
     private readonly OverviewPage $overviewPage;
     private readonly array        $listProducts;
     private readonly int          $countProducts;
@@ -36,28 +37,22 @@ final class OverviewSteps extends AcceptanceTester
         $this->total = $this->overviewPage->getTotal();
     }
     
-    final public function checkCalculation(array $expectedItems): void
+    final public function checkCalculation(array $products): void
     {
-        $this->comment('Рассчитываю данные для списка продуктов');
+        $this->comment('Рассчитываю данные для фактического списка продуктов');
         $this->checkCalculate($this->listProducts);
         
         $this->comment('Рассчитываю данные для переданного списка продуктов');
-        $this->checkCalculate($expectedItems);
-    }
-    
-    final public function getCountProductsInCart(): int
-    {
-        return $this->overviewPage->getValueCart();
+        $this->checkCalculate($products);
     }
     
     final public function clickButtonFinish(): void
     {
+        $this->overviewPage->assertHeaderPage();
+        
         $this->overviewPage->clickButtonFinish();
-    }
-    
-    final public function assertZeroTotal(): void
-    {
-        $this->assertTotalEquals(0.0, 0.0, 0.0);
+        
+        $this->overviewPage->waitForPageNotVisible();
     }
     
     private function checkCalculate(array $listProducts): void
@@ -84,7 +79,7 @@ final class OverviewSteps extends AcceptanceTester
     {
         $total = $this->calculateSubTotal($listProducts);
         
-        return round($total / 100 * TestConfigEnum::TAX_RATE, 2);
+        return round($total / 100 * self::TAX_RATE, 2);
     }
     
     private function calculateTotal(array $listProducts): float

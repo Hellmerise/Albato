@@ -33,6 +33,8 @@ final class CompleteSteps extends AcceptanceTester
     
     final public function seeSuccessPayment(): void
     {
+        $this->completePage->assertHeaderPage();
+        
         $this->assertEquals($this->text_header_success, $this->text_header_actual);
         $this->assertEquals($this->text_message_success, $this->text_message_actual);
     }

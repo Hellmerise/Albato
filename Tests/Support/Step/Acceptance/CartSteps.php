@@ -73,23 +73,23 @@ final class CartSteps extends AcceptanceTester
      * Проверяет, что количество продуктов на странице и в счетчике корзины
      * совпадает с количеством ожидаемых продуктов.
      *
-     * @param array $expectedProducts Ожидаемый список продуктов
+     * @param array $products Список товаров
      *
      * @return void
      */
-    private function checkingCountProducts(array $expectedProducts): void
+    private function checkingCountProducts(array $products): void
     {
-        $countProducts = $this->cartPage->getCountProductsOnPage();
+        $expectedCount = $this->cartPage->getCountProductsOnPage();
         $countItemsInCart = $this->cartPage->getValueCart();
         
-        $this->assertCount($countProducts, $expectedProducts, 'Количество товаров в корзине не совпадает с количеством добавленных товаров');
-        $this->assertEquals($countItemsInCart, $countProducts, 'Количество товаров в счетчике не совпадает с количеством товаров в корзине');
+        $this->assertCount($expectedCount, $products, 'Количество товаров в корзине не совпадает с количеством добавленных товаров');
+        $this->assertEquals($countItemsInCart, $expectedCount, 'Количество товаров в счетчике не совпадает с количеством товаров в корзине');
     }
     
     /**
      * Сравнивает ожидаемый и фактический списки продуктов по выбранным полям.
      *
-     * @param array $expectedProducts Ожидаемый список продуктов
+     * @param array $expectedProducts Ожидаемый список товаров
      *
      * @return void
      */
@@ -106,7 +106,7 @@ final class CartSteps extends AcceptanceTester
     /**
      * Отбирает из каждого продукта только нужные поля для сравнения.
      *
-     * @param array $products Список продуктов
+     * @param array $products Список товаров
      *
      * @return array Отфильтрованный список продуктов с ключами id, name, description, price
      *
@@ -143,9 +143,10 @@ final class CartSteps extends AcceptanceTester
     private function clearCart(): void
     {
         $products = $this->cartPage->getProductsFromPage();
+        $keyButton = $this->cartPage->getKeyButton();
         
         while (count($products) > 0) {
-            $this->click($products[0][$this->cartPage->getKeyButton()]);
+            $this->click($products[0][$keyButton]);
             $products = $this->cartPage->getProductsFromPage();
         }
     }

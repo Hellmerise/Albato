@@ -23,7 +23,7 @@ final class InformationSteps extends AcceptanceTester
         $this->informationPage = new InformationPage($acceptanceTester);
     }
     
-    final public function fillFieldsInformation(?string $firstname, ?string $lastname, ?string $postalCode): void
+    final public function writeInformationAndContinue(?string $firstname, ?string $lastname, ?string $postalCode): void
     {
         try {
             $this->processFillingInformationFields($firstname, $lastname, $postalCode);

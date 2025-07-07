@@ -20,7 +20,6 @@ final class ProcessPurchaseByStandardUserCest extends CasePurchaseProducts
     public function tryToTest(Example $example): void
     {
         $this->loginSteps->loginAsStandardUser();
-        
         $this->testPurchaseProducts(
             $example[parent::KEY_COUNT] ?? null,
             $example[parent::KEY_FIRSTNAME] ?? null,

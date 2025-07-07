@@ -14,7 +14,7 @@ trait LoginStepsTrait
      */
     protected LoginSteps $loginSteps;
     private Scenario $scenario;
-    private AcceptanceTester $acceptanceTester;
+    protected AcceptanceTester $acceptanceTester;
     
     public function _before(Scenario $scenario, AcceptanceTester $I): void
     {

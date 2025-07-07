@@ -31,6 +31,9 @@ abstract class CasePurchaseProducts
         $selectedProducts = $this->selectProducts($countProducts);
         
         $this->checkingProductsInCart($selectedProducts);
+        $this->fillPurchaserInformation($firstname, $lastname, $postalCode);
+        $this->checkingOverview($selectedProducts);
+        $this->checkingSuccessPayment();
     }
     
     private function selectProducts(?int $countProducts): array
@@ -57,84 +60,25 @@ abstract class CasePurchaseProducts
     {
         $informationSteps = new InformationSteps($this->scenario, $this->acceptanceTester);
         
-        
+        $informationSteps->writeInformationAndContinue($firstname, $lastname, $postalCode);
     }
     
+    private function checkingOverview(array $products): void
+    {
+        $overviewSteps = new OverviewSteps($this->scenario, $this->acceptanceTester);
+        
+        $overviewSteps->checkCalculation($products);
+        
+        $overviewSteps->clickButtonFinish();
+    }
     
-    
-    /*    final protected function testProcessPayment(Scenario $scenario, AcceptanceTester $I, bool $addProducts = true): void
-        {
-            $products = $this->addProductsInCart($scenario, $I, $addProducts);
-            $this->checkCartPage($scenario, $I, $products);
-            $this->fillInformation($scenario, $I);
-            $this->checkCalculateTotal($scenario, $I, $products);
-            
-            $this->checkCompletion($scenario, $I);
-        }
+    private function checkingSuccessPayment(): void
+    {
+        $completeSteps = new CompleteSteps($this->scenario, $this->acceptanceTester);
         
-        private function addProductsInCart(Scenario $scenario, AcceptanceTester $I, bool $addProducts): array|null
-        {
-            $inventorySteps = new InventorySteps($scenario, $I);
-            
-            if ($addProducts) {
-                $add_items = $inventorySteps->addProductsInCart();
-            }
-            
-            $inventorySteps->clickButtonCart();
-            
-            return $addProducts
-                ? $add_items
-                : null;
-        }
-        
-        private function checkCartPage(Scenario $scenario, AcceptanceTester $I, ?array $products): void
-        {
-            $cartSteps = new CartSteps($scenario, $I);
-            
-            if (!is_null($products)) {
-                $cartSteps->assertProductsEqual($products);
-            }
-            
-            $cartSteps->clickButtonCheckout();
-        }
-        
-        private function fillInformation(Scenario $scenario, AcceptanceTester $I): void
-        {
-            $client = [
-                TestCasesEnum::KEY_FIRSTNAME   => 'Дмитрий',
-                TestCasesEnum::KEY_LASTNAME    => 'Базарнов',
-                TestCasesEnum::KEY_POSTAL_CODE => '123456',
-            ];
-            
-            $informationSteps = new InformationSteps($scenario, $I);
-            
-            $informationSteps->processFillingInformationFields($client);
-        }
-        
-        private function checkCalculateTotal(Scenario $scenario, AcceptanceTester $I, ?array $products): void
-        {
-            $overviewSteps = new OverviewSteps($scenario, $I);
-            
-            $countInCart = $overviewSteps->getCountProductsInCart();
-            
-            if (!is_null($products)) {
-                $overviewSteps->checkCalculation($products);
-                $I->assertGreaterThan(0, $countInCart);
-            } else {
-                $overviewSteps->assertZeroTotal();
-                $I->assertEquals(0, $countInCart);
-            }
-            
-            $overviewSteps->clickButtonFinish();
-        }
-        
-        private function checkCompletion(Scenario $scenario, AcceptanceTester $I): void
-        {
-            $completeSteps = new CompleteSteps($scenario, $I);
-            $completeSteps->seeSuccessPayment();
-            
-            $completeSteps->assertCartEmpty();
-        }*/
+        $completeSteps->seeSuccessPayment();
+        $completeSteps->assertCartEmpty();
+    }
     
     /**
      * @dataProvider dataProvider
