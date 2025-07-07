@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 
-namespace Tests\Acceptance\Role\Visual;
+namespace Tests\Acceptance\Users\Visual;
 
 
 use Tests\Acceptance\ScenarioTest\CaseSortingProducts;

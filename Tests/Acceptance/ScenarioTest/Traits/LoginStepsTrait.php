@@ -12,9 +12,10 @@ trait LoginStepsTrait
     /**
      * @var LoginSteps Класс для взаимодействия с PageObject.
      */
-    protected LoginSteps $loginSteps;
-    private Scenario $scenario;
+    protected LoginSteps       $loginSteps;
     protected AcceptanceTester $acceptanceTester;
+    private Scenario           $scenario;
+    
     
     public function _before(Scenario $scenario, AcceptanceTester $I): void
     {
